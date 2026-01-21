@@ -41,6 +41,25 @@ def get_libri():
     return jsonify(books), 200
 
 
+@app.route('/api/libri', methods=['POST'])
+def add_libro():
+    global next_id
+    data = request.json
+    if not data or 'titolo' not in data or 'autore' not in data:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    new_book = {
+        "id": next_id,
+        "titolo": data['titolo'],
+        "autore": data['autore'],
+        "anno": data.get('anno'),
+        "genere": data.get('genere')
+    }
+    books.append(new_book)
+    next_id += 1
+    return jsonify(new_book), 201
+
+
 @app.route('/api/libri/<int:book_id>', methods=['DELETE'])
 def delete_libro(book_id):
     global books

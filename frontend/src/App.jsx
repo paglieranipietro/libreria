@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
@@ -8,24 +6,54 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // Search states
+  const [searchAutore, setSearchAutore] = useState('')
+  const [searchGenere, setSearchGenere] = useState('')
+
+  // New book state
+  const [newBook, setNewBook] = useState({
+    titolo: '',
+    autore: '',
+    anno: new Date().getFullYear(),
+    genere: ''
+  })
+
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000'
 
   useEffect(() => {
-    async function fetchLibri() {
-      setLoading(true)
-      try {
-        const res = await fetch(`${API_BASE}/api/libri`)
-        if (!res.ok) throw new Error('Errore nel recupero dei libri')
-        const data = await res.json()
-        setLibri(data)
-      } catch (e) {
-        setError(e.message)
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchLibri()
   }, [])
+
+  async function fetchLibri() {
+    setLoading(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/libri`)
+      if (!res.ok) throw new Error('Errore nel recupero dei libri')
+      const data = await res.json()
+      setLibri(data)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleCreate(e) {
+    e.preventDefault()
+    try {
+      const res = await fetch(`${API_BASE}/api/libri`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBook)
+      })
+      if (!res.ok) throw new Error('Errore nella creazione')
+      const created = await res.json()
+      setLibri(prev => [...prev, created])
+      setNewBook({ titolo: '', autore: '', anno: new Date().getFullYear(), genere: '' })
+    } catch (e) {
+      alert(e.message)
+    }
+  }
 
   async function handleDelete(id) {
     if (!confirm('Confermi eliminazione del libro?')) return
@@ -49,42 +77,118 @@ function App() {
     }
   }
 
+  // Filter logic
+  const filteredLibri = libri.filter(b => {
+    const matchAutore = b.autore.toLowerCase().includes(searchAutore.toLowerCase())
+    const matchGenere = b.genere.toLowerCase().includes(searchGenere.toLowerCase())
+    return matchAutore && matchGenere
+  })
+
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
+    <div className="app-container">
       <h1>Gestione Libreria</h1>
 
-      {loading && <p>Caricamento libri...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div className="main-layout">
 
-      {!loading && !error && (
-        <div>
-          <div style={{ marginBottom: 12 }}>
-            <button onClick={handleDeleteAll}>Cancella intera libreria</button>
-          </div>
+        {/* Pannello di gestione a sinistra */}
+        <div className="left-panel">
 
-          <ul>
-            {libri.map((libro) => (
-              <li key={libro.id} style={{ marginBottom: 8 }}>
-                <strong>{libro.titolo}</strong> — {libro.autore} ({libro.anno}) • {libro.genere}
-                <button style={{ marginLeft: 8 }} onClick={() => handleDelete(libro.id)}>Elimina</button>
-              </li>
-            ))}
-          </ul>
+          {/* From per i libri */}
+          <section>
+            <h2>Nuovo Libro</h2>
+            <form onSubmit={handleCreate} className="form-group">
+              <input
+                placeholder="Titolo"
+                value={newBook.titolo}
+                onChange={e => setNewBook({ ...newBook, titolo: e.target.value })}
+                required
+              />
+              <input
+                placeholder="Autore"
+                value={newBook.autore}
+                onChange={e => setNewBook({ ...newBook, autore: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Anno"
+                value={newBook.anno}
+                onChange={e => setNewBook({ ...newBook, anno: parseInt(e.target.value) })}
+                required
+              />
+              <input
+                placeholder="Genere"
+                value={newBook.genere}
+                onChange={e => setNewBook({ ...newBook, genere: e.target.value })}
+                required
+              />
+              <button type="submit">Aggiungi</button>
+            </form>
+          </section>
 
-          {libri.length === 0 && <p>Nessun libro disponibile.</p>}
+          {/* Ricerca */}
+          <section>
+            <h2>Cerca</h2>
+            <div className="form-group">
+              <input
+                placeholder="Filtra per Autore..."
+                value={searchAutore}
+                onChange={e => setSearchAutore(e.target.value)}
+              />
+              <input
+                placeholder="Filtra per Genere..."
+                value={searchGenere}
+                onChange={e => setSearchGenere(e.target.value)}
+              />
+            </div>
+          </section>
+
+          {/* Eliminiamo tutto che non si sa mai */}
+          {libri.length > 0 && (
+            <section>
+              <button onClick={handleDeleteAll} className="delete-all-btn">
+                Elimina Tutti i Libri
+              </button>
+            </section>
+          )}
         </div>
-      )}
 
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+        {/* I libriiii a destra */}
+        <div className="right-panel">
+          <h2>Elenco Libri ({filteredLibri.length})</h2>
+
+          {loading && <p>Caricamento...</p>}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+
+          {!loading && !error && (
+            <>
+              {filteredLibri.length === 0 ? (
+                <p>Nessun libro trovato.</p>
+              ) : (
+                <ul className="book-list">
+                  {filteredLibri.map((libro) => (
+                    <li key={libro.id} className="book-item">
+                      <div className="book-info">
+                        <h3>{libro.titolo}</h3>
+                        <div className="book-details">
+                          {libro.autore} • {libro.anno} • {libro.genere}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDelete(libro.id)}
+                        className="delete-btn"
+                      >
+                        Elimina
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
