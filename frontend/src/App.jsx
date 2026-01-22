@@ -86,15 +86,16 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1>Gestione Libreria</h1>
+      {/* Header Fissato */}
+      <h1 className="main-title">Gestione Libreria</h1>
 
       <div className="main-layout">
 
-        {/* Pannello di gestione a sinistra */}
+        {/* LEFT PANEL: Functions (Fixed/Independently Scrollable if needed) */}
         <div className="left-panel">
 
-          {/* From per i libri */}
-          <section>
+          {/* Add Book Form */}
+          <section className="control-section">
             <h2>Nuovo Libro</h2>
             <form onSubmit={handleCreate} className="form-group">
               <input
@@ -122,30 +123,13 @@ function App() {
                 onChange={e => setNewBook({ ...newBook, genere: e.target.value })}
                 required
               />
-              <button type="submit">Aggiungi</button>
+              <button type="submit">Aggiungi Libro</button>
             </form>
           </section>
 
-          {/* Ricerca */}
-          <section>
-            <h2>Cerca</h2>
-            <div className="form-group">
-              <input
-                placeholder="Filtra per Autore..."
-                value={searchAutore}
-                onChange={e => setSearchAutore(e.target.value)}
-              />
-              <input
-                placeholder="Filtra per Genere..."
-                value={searchGenere}
-                onChange={e => setSearchGenere(e.target.value)}
-              />
-            </div>
-          </section>
-
-          {/* Eliminiamo tutto che non si sa mai */}
+          {/* Global Actions */}
           {libri.length > 0 && (
-            <section>
+            <section className="control-section">
               <button onClick={handleDeleteAll} className="delete-all-btn">
                 Elimina Tutti i Libri
               </button>
@@ -153,39 +137,58 @@ function App() {
           )}
         </div>
 
-        {/* I libriiii a destra */}
+        {/* RIGHT PANEL: Search + List (Independently Scrollable) */}
         <div className="right-panel">
-          <h2>Elenco Libri ({filteredLibri.length})</h2>
 
-          {loading && <p>Caricamento...</p>}
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {/* Search Bar - Fixed at top of list view */}
+          <div className="search-bar-container">
+            <input
+              placeholder="Cerca per Autore..."
+              value={searchAutore}
+              onChange={e => setSearchAutore(e.target.value)}
+            />
+            <input
+              placeholder="Cerca per Genere..."
+              value={searchGenere}
+              onChange={e => setSearchGenere(e.target.value)}
+            />
+          </div>
 
-          {!loading && !error && (
-            <>
-              {filteredLibri.length === 0 ? (
-                <p>Nessun libro trovato.</p>
-              ) : (
-                <ul className="book-list">
-                  {filteredLibri.map((libro) => (
-                    <li key={libro.id} className="book-item">
-                      <div className="book-info">
-                        <h3>{libro.titolo}</h3>
-                        <div className="book-details">
-                          {libro.autore} • {libro.anno} • {libro.genere}
+          <div className="list-header">
+            <h2>Elenco Libri ({filteredLibri.length})</h2>
+          </div>
+
+          <div className="scrollable-list">
+            {loading && <p>Caricamento...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            {!loading && !error && (
+              <>
+                {filteredLibri.length === 0 ? (
+                  <p>Nessun libro trovato.</p>
+                ) : (
+                  <ul className="book-list">
+                    {filteredLibri.map((libro) => (
+                      <li key={libro.id} className="book-item">
+                        <div className="book-info">
+                          <h3>{libro.titolo}</h3>
+                          <div className="book-details">
+                            {libro.autore} • {libro.anno} • {libro.genere}
+                          </div>
                         </div>
-                      </div>
-                      <button
-                        onClick={() => handleDelete(libro.id)}
-                        className="delete-btn"
-                      >
-                        Elimina
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
-          )}
+                        <button
+                          onClick={() => handleDelete(libro.id)}
+                          className="delete-btn"
+                        >
+                          Elimina
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
