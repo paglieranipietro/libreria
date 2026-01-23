@@ -57,10 +57,6 @@ h1.main-title {
   gap: 12px;
 }
 
-h1.main-title::before {
-  content: '📚';
-  font-size: 1.5rem;
-}
 
 /* Main Layout Grid */
 .main-layout {
@@ -362,4 +358,16 @@ p.empty-state {
     font-size: 1.5rem;
     padding: 16px 20px;
   }
+}
+
+/* Per Chrome, Safari, Edge, Opera */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Per Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

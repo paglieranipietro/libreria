@@ -14,7 +14,7 @@ function App() {
   const [newBook, setNewBook] = useState({
     titolo: '',
     autore: '',
-    anno: new Date().getFullYear(),
+    anno: '',
     genere: ''
   })
 
@@ -87,7 +87,7 @@ function App() {
   return (
     <div className="app-container">
       {/* Header Fissato */}
-      <h1 className="main-title">Gestione Libreria</h1>
+      <h1 className="main-title">Gestione Libreria di Paglierani</h1>
 
       <div className="main-layout">
 
