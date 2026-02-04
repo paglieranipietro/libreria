@@ -1,5 +1,7 @@
 # Web Application per Gestione Libreria
 
+<img width="1901" height="843" alt="image" src="https://github.com/user-attachments/assets/96a47c3c-6010-4441-9ffe-8a5f18e5fdc7" />
+
 Un'applicazione web client-server per la gestione di una libreria, sviluppata con React (frontend) e Flask (backend).
 
 ## 📋 Indice
